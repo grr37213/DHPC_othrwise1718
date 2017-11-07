@@ -1,22 +1,31 @@
 
 #include "mat.hpp"
+#include "Latch.hpp"
 #include <chrono>
+#include <functional>
+#include <thread>
 
 using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
 using Duration = std::chrono::duration<std::chrono::high_resolution_clock>;
 
-class Process : public std::thread
+class Process
 {
 	TimePoint start, finish;
 
 	mat& m;
 	std::function<double(double)> f;
+	
+	Latch& latch;
+
+	std::thread t;
+
 public:
-	Process(mat&, std::function<double(double>, Latch);
+	Process(mat& m, std::function<double(double)> f, Latch& l);
 
-	void body() = 0;
+	virtual void body() = 0;
 
-	void start();
+	void fire();
+	void run();
 	Duration complete();
-	Duration runtime();
+	Duration runtime() const;
 };

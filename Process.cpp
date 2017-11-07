@@ -3,31 +3,34 @@
 #include <thread>
 
 Process::Process(mat& m, std::function<double(double)> f, Latch& l)
-l(l),
+	:
+latch(l),
 m(m),
-f(f),
-running(false),
-std::thread(start)
+f(f)
 {
 }
 
-void Process::start()
+
+void Process::run()
 {
 	start = std::chrono::high_resolution_clock::now();
 	body();
 	latch.countDown();
 }
 
-void complete()
+void Process::fire()
+{
+	t = std::thread(&Process::run, this);
+}
+
+Duration Process::complete()
 {
 	latch.await();
-	finish = std::chrono::high_resolution_clock::now() - start;
-	return finish;
+	finish = std::chrono::high_resolution_clock::now();
+	return runtime();
 }
 
-Duration runtime () const
+Duration Process::runtime() const
 {
-	return finish;
+	return finish-start;
 }
-
-
